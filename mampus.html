@@ -3,32 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mampus - Login</title>
+    <title>Login - Mampus</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f2f2f2; }
         .login-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
         input { margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 15px; background: #006afa; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: 
-        #71adff; }
+        button { padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
     </style>
 </head>
 <body>
 
 <div class="login-container">
-   <img src="assets/nm.png" width="125" height="50"></img>
-    <h1>Login</h1>
-    <h3>mau beli id?, chat no owner<br>087880306228(owner)</h3>
-    <input type="text" id="userId" placeholder="Masukin ID" required>
-    <input type="password" id="userPassword" placeholder="Masukin Password"required>
-    <button onclick="checkLogin()">Gasss</button>
+    <h2>Login</h2>
+    <input type="text" id="userId" placeholder="Enter ID" required>
+    <input type="password" id="userPassword" placeholder="Enter Password" required>
+    <button onclick="checkLogin()">Login</button>
 </div>
 
 <script src="data.js"></script>
 <script>
     // Fungsi untuk memeriksa apakah ID dan password valid
     function checkLogin() {
-        // Mendapatkan ID dan password yang dimasukkan oleh pengguna
         const enteredId = document.getElementById('userId').value;
         const enteredPassword = document.getElementById('userPassword').value;
 
@@ -55,7 +51,15 @@
 
         // Jika tidak ada data login atau login lebih dari 1 jam, alihkan ke mampus.html
         if (!userData || !lastLoginTime || currentTime - lastLoginTime > 3600000) {
-            window.location.href = "mampus.html";
+            // Pastikan hanya mengalihkan ke mampus.html jika login sudah lebih dari 1 jam atau tidak ada login sama sekali
+            if (window.location.pathname !== "/mampus.html") {
+                window.location.href = "mampus.html";
+            }
+        } else {
+            // Jika sudah login dan belum 1 jam, alihkan ke halaman utama (index.html)
+            if (window.location.pathname !== "/index.html") {
+                window.location.href = "index.html";
+            }
         }
     };
 </script>
