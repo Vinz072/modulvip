@@ -3,66 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Mampus</title>
+    <title>ID</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f2f2f2; }
-        .login-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        input { margin-bottom: 10px; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #45a049; }
+        body { font-family: Arial, sans-serif; }
+        .login-container { max-width: 400px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; }
+        .login-container input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        .login-container button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .login-container button:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
+    <div class="login-container">
+div class="login-container">
+   <img src="assets/nm.png" width="125" height="50"></img>
+    <h1>Login</h1>
+    <h3>mau beli id?, chat no owner<br>087880306228(owner)</h3>
+        <input type="text" id="id" placeholder="Masukin ID Disini" required>
+        <input type="password" id="pw" placeholder="Masukin PW Disini" required>
+        <button onclick="login()">Login</button>
+    </div>
 
-<div class="login-container">
-    <h2>Login</h2>
-    <input type="text" id="userId" placeholder="Enter ID" required>
-    <input type="password" id="userPassword" placeholder="Enter Password" required>
-    <button onclick="checkLogin()">Login</button>
-</div>
+    <script>
+        // Daftar ID dan Password yang valid
+        const validUsers = [
+            { id: '0', pw: 'owner' },
+            { id: '1', pw: 'adm' },
+            { id: '2', pw: 'mem' }
+        ];
 
-<script src="data.js"></script>
-<script>
-    // Fungsi untuk memeriksa apakah ID dan password valid
-    function checkLogin() {
-        const enteredId = document.getElementById('userId').value;
-        const enteredPassword = document.getElementById('userPassword').value;
+        function login() {
+            const id = document.getElementById('id').value;
+            const pw = document.getElementById('pw').value;
+            const user = validUsers.find(user => user.id === id && user.pw === pw);
 
-        // Memeriksa apakah data login valid dengan data yang ada di data.js
-        const user = validUsers.find(u => u.id === enteredId && u.password === enteredPassword);
-        
-        if (user) {
-            // Jika valid, simpan data login dan waktu login
-            localStorage.setItem('user_data', JSON.stringify({ id: enteredId }));
-            localStorage.setItem('last_login_time', new Date().getTime());
+            if (user) {
+                // Simpan data login dan waktu login di localStorage
+                const loginData = { id: user.id, pw: user.pw };
+                localStorage.setItem('user_data', JSON.stringify(loginData));
+                localStorage.setItem('last_login_time', new Date().getTime());
 
-            // Alihkan ke halaman utama
-            window.location.href = "index.html";
-        } else {
-            alert("ID atau password salah!");
-        }
-    }
-
-    // Mengecek apakah pengguna sudah login atau belum saat membuka halaman
-    window.onload = function() {
-        const userData = JSON.parse(localStorage.getItem("user_data"));
-        const lastLoginTime = localStorage.getItem("last_login_time");
-        const currentTime = new Date().getTime();
-
-        // Jika tidak ada data login atau login lebih dari 1 jam, alihkan ke mampus.html
-        if (!userData || !lastLoginTime || currentTime - lastLoginTime > 3600000) {
-            // Pastikan hanya mengalihkan ke mampus.html jika login sudah lebih dari 1 jam atau tidak ada login sama sekali
-            if (window.location.pathname !== "/mampus.html") {
-                window.location.href = "mampus.html";
-            }
-        } else {
-            // Jika sudah login dan belum 1 jam, alihkan ke halaman utama (index.html)
-            if (window.location.pathname !== "/index.html") {
-                window.location.href = "index.html";
+                // Redirect ke halaman utama (index.html)
+                window.location.href = 'index.html';
+            } else {
+                alert('Invalid ID or Password');
             }
         }
-    };
-</script>
-
+    </script>
 </body>
 </html>
