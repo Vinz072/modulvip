@@ -36,7 +36,6 @@
             { id: 'ghani', pw: '1' }
         ];
 
-        // Cek apakah user di-blacklist
         function isBlacklisted() {
             const blacklistData = JSON.parse(localStorage.getItem('blacklist')) || {};
             const today = new Date().toISOString().slice(0, 10);
@@ -58,16 +57,17 @@
             let attempts = parseInt(localStorage.getItem('login_attempts')) || 0;
 
             if (user) {
-                // Jika login sukses, reset percobaan salah
+                // Simpan data login dengan waktu kedaluwarsa 1 jam
+                const loginTime = new Date().getTime();
+                localStorage.setItem('user_data', JSON.stringify({ id: user.id, loginTime }));
                 localStorage.removeItem('login_attempts');
-                localStorage.setItem('user_data', JSON.stringify({ id: user.id }));
+
                 window.location.href = 'index.html';
             } else {
                 attempts++;
                 localStorage.setItem('login_attempts', attempts);
 
                 if (attempts >= 2) {
-                    // Blacklist user selama 30 hari
                     const expiryDate = new Date();
                     expiryDate.setDate(expiryDate.getDate() + 30);
                     localStorage.setItem('blacklist', JSON.stringify({ expiry: expiryDate.toISOString().slice(0, 10) }));
@@ -79,23 +79,46 @@
             }
         }
 
-        // Cek URL untuk menghapus blacklist
         function checkURLForBlacklistRemoval() {
             const urlParams = new URLSearchParams(window.location.search);
             const unblockDate = urlParams.get('bukablacklist');
+            const today = new Date().toISOString().slice(0, 10);
 
             if (unblockDate) {
-                const today = new Date().toISOString().slice(0, 10);
                 if (unblockDate === today) {
                     localStorage.removeItem('blacklist');
                     alert('Anda telah berhasil di whitelist! Blacklist dihapus.');
+
+                    // Jika sebelumnya sudah login, simpan kembali data login selama 1 jam
+                    const prevUserData = JSON.parse(localStorage.getItem('user_data'));
+                    if (prevUserData) {
+                        const loginTime = new Date().getTime();
+                        localStorage.setItem('user_data', JSON.stringify({ id: prevUserData.id, loginTime }));
+                    }
+
                 } else {
                     alert('Tanggal salah! Anda akan diblacklist permanen.');
                 }
             }
         }
 
+        function checkAutoLogin() {
+            const userData = JSON.parse(localStorage.getItem('user_data'));
+            if (userData) {
+                const now = new Date().getTime();
+                const loginTime = userData.loginTime || 0;
+                const oneHour = 60 * 60 * 1000;
+
+                if (now - loginTime < oneHour) {
+                    window.location.href = 'index.html';
+                } else {
+                    localStorage.removeItem('user_data'); // Hapus sesi setelah 1 jam
+                }
+            }
+        }
+
         checkURLForBlacklistRemoval();
+        checkAutoLogin();
     </script>
 </body>
 </html>
