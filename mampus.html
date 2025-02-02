@@ -13,10 +13,10 @@
     </style>
 </head>
 <body>
-    <div class="login-container"
-   <img src="assets/nm.png" width="125" height="50"></img>
-    <h1>Login</h1>
-    <h3>mau beli id?, chat no owner<br>087880306228(owner)</h3>
+    <div class="login-container">
+        <img src="assets/nm.png" width="125" height="50">
+        <h1>Login</h1>
+        <h3>mau beli id?, chat no owner<br>087880306228(owner)</h3>
         <input type="text" id="id" placeholder="Masukin ID Disini" required>
         <input type="password" id="pw" placeholder="Masukin PW Disini" required>
         <button onclick="login()">Login</button>
@@ -36,23 +36,66 @@
             { id: 'ghani', pw: '1' }
         ];
 
+        // Cek apakah user di-blacklist
+        function isBlacklisted() {
+            const blacklistData = JSON.parse(localStorage.getItem('blacklist')) || {};
+            const today = new Date().toISOString().slice(0, 10);
+
+            if (blacklistData.expiry && new Date(blacklistData.expiry) >= new Date(today)) {
+                alert(`Anda telah diblacklist hingga ${blacklistData.expiry}.`);
+                return true;
+            } 
+            return false;
+        }
+
         function login() {
+            if (isBlacklisted()) return;
+
             const id = document.getElementById('id').value;
             const pw = document.getElementById('pw').value;
             const user = validUsers.find(user => user.id === id && user.pw === pw);
 
-            if (user) {
-                // Simpan data login dan waktu login di localStorage
-                const loginData = { id: user.id, pw: user.pw };
-                localStorage.setItem('user_data', JSON.stringify(loginData));
-                localStorage.setItem('last_login_time', new Date().getTime());
+            let attempts = parseInt(localStorage.getItem('login_attempts')) || 0;
 
-                // Redirect ke halaman utama (index.html)
+            if (user) {
+                // Jika login sukses, reset percobaan salah
+                localStorage.removeItem('login_attempts');
+                localStorage.setItem('user_data', JSON.stringify({ id: user.id }));
                 window.location.href = 'index.html';
             } else {
-                alert('Invalid ID or Password');
+                attempts++;
+                localStorage.setItem('login_attempts', attempts);
+
+                if (attempts >= 2) {
+                    // Blacklist user selama 30 hari
+                    const expiryDate = new Date();
+                    expiryDate.setDate(expiryDate.getDate() + 30);
+                    localStorage.setItem('blacklist', JSON.stringify({ expiry: expiryDate.toISOString().slice(0, 10) }));
+
+                    alert(`Anda telah diblacklist hingga ${expiryDate.toISOString().slice(0, 10)}.`);
+                } else {
+                    alert('ID atau Password salah! Percobaan: ' + attempts);
+                }
             }
         }
+
+        // Cek URL untuk menghapus blacklist
+        function checkURLForBlacklistRemoval() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const unblockDate = urlParams.get('bukablacklist');
+
+            if (unblockDate) {
+                const today = new Date().toISOString().slice(0, 10);
+                if (unblockDate === today) {
+                    localStorage.removeItem('blacklist');
+                    alert('Blacklist berhasil dihapus!');
+                } else {
+                    alert('Tanggal salah! Anda akan diblacklist permanen.');
+                }
+            }
+        }
+
+        checkURLForBlacklistRemoval();
     </script>
 </body>
 </html>
