@@ -31,18 +31,14 @@
             { id: '4', pw: 'nopal' },
             { id: 'follow', pw: 'vzproject' },
             { id: 'vzproject', pw: '72' },
-            { id: '7', pw: '1357' },
-            { id: 'ghani', pw: '1' }
+            { id: '7', pw: '1357' }
         ];
 
         function isBlacklisted() {
             const blacklistData = JSON.parse(localStorage.getItem('blacklist')) || {};
             const today = new Date().toISOString().slice(0, 10);
 
-            if (blacklistData.expiry && new Date(blacklistData.expiry) >= new Date(today)) {
-                return true;
-            }
-            return false;
+            return blacklistData.expiry && new Date(blacklistData.expiry) >= new Date(today);
         }
 
         function login() {
@@ -58,7 +54,8 @@
             let attempts = parseInt(localStorage.getItem('login_attempts')) || 0;
 
             if (user) {
-                localStorage.setItem('user_data', JSON.stringify({ id: user.id, loginTime: Date.now() }));
+                const loginData = { id: user.id, loginTime: Date.now() };
+                localStorage.setItem('user_data', JSON.stringify(loginData));
                 localStorage.removeItem('login_attempts');
                 window.location.href = 'index.html';
             } else {
@@ -85,11 +82,7 @@
                 if (unblockDate === today) {
                     localStorage.removeItem('blacklist');
                     alert('Anda sudah di whitelist! Blacklist terhapus.');
-
-                    const prevUserData = JSON.parse(localStorage.getItem('user_data'));
-                    if (prevUserData) {
-                        localStorage.setItem('user_data', JSON.stringify({ id: prevUserData.id, loginTime: Date.now() }));
-                    }
+                    window.location.href = 'index.html';
                 } else {
                     alert('Tanggal salah! Anda akan diblacklist permanen.');
                 }
@@ -105,9 +98,8 @@
                 const oneHour = 60 * 60 * 1000;
 
                 if (now - loginTime < oneHour) {
-                    if (window.location.pathname.includes('index.html')) {
-                        console.log('Sudah login, tetap di halaman utama.');
-                    } else {
+                    // Jika sudah login dan masih dalam waktu 1 jam, tetap di index.html
+                    if (!window.location.pathname.includes('index.html')) {
                         window.location.href = 'index.html';
                     }
                 }
