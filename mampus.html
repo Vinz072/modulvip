@@ -31,13 +31,12 @@
             { id: '4', pw: 'nopal' },
             { id: 'follow', pw: 'vzproject' },
             { id: 'vzproject', pw: '72' },
-            { id: '7', pw: '1357' }
+            { id: '7', pw: '1357' },
         ];
 
         function isBlacklisted() {
             const blacklistData = JSON.parse(localStorage.getItem('blacklist')) || {};
             const today = new Date().toISOString().slice(0, 10);
-
             return blacklistData.expiry && new Date(blacklistData.expiry) >= new Date(today);
         }
 
@@ -98,16 +97,20 @@
                 const oneHour = 60 * 60 * 1000;
 
                 if (now - loginTime < oneHour) {
-                    // Jika sudah login dan masih dalam waktu 1 jam, tetap di index.html
-                    if (!window.location.pathname.includes('index.html')) {
+                    if (window.location.pathname.includes('login.html')) {
                         window.location.href = 'index.html';
                     }
+                } else {
+                    localStorage.removeItem('user_data');
                 }
             }
         }
 
+        // Hanya jalankan cek login kalau bukan di index.html, biar tidak loop
+        if (!window.location.pathname.includes('index.html')) {
+            checkAutoLogin();
+        }
         checkURLForBlacklistRemoval();
-        checkAutoLogin();
     </script>
 </body>
 </html>
