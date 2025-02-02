@@ -88,7 +88,7 @@
                 const today = new Date().toISOString().slice(0, 10);
                 if (unblockDate === today) {
                     localStorage.removeItem('blacklist');
-                    alert('Blacklist berhasil dihapus!');
+                    alert('Anda telah berhasil di whitelist! Blacklist dihapus.');
                 } else {
                     alert('Tanggal salah! Anda akan diblacklist permanen.');
                 }
