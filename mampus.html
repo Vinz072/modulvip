@@ -23,7 +23,6 @@
     </div>
 
     <script>
-        // Daftar ID dan Password yang valid
         const validUsers = [
             { id: '0', pw: 'owner' },
             { id: '1', pw: 'adm' },
@@ -41,14 +40,16 @@
             const today = new Date().toISOString().slice(0, 10);
 
             if (blacklistData.expiry && new Date(blacklistData.expiry) >= new Date(today)) {
-                alert(`Anda telah diblacklist hingga ${blacklistData.expiry}.`);
                 return true;
-            } 
+            }
             return false;
         }
 
         function login() {
-            if (isBlacklisted()) return;
+            if (isBlacklisted()) {
+                alert("Anda masih diblacklist!");
+                return;
+            }
 
             const id = document.getElementById('id').value;
             const pw = document.getElementById('pw').value;
@@ -57,11 +58,8 @@
             let attempts = parseInt(localStorage.getItem('login_attempts')) || 0;
 
             if (user) {
-                // Simpan data login dengan waktu kedaluwarsa 1 jam
-                const loginTime = new Date().getTime();
-                localStorage.setItem('user_data', JSON.stringify({ id: user.id, loginTime }));
+                localStorage.setItem('user_data', JSON.stringify({ id: user.id, loginTime: Date.now() }));
                 localStorage.removeItem('login_attempts');
-
                 window.location.href = 'index.html';
             } else {
                 attempts++;
@@ -71,7 +69,6 @@
                     const expiryDate = new Date();
                     expiryDate.setDate(expiryDate.getDate() + 30);
                     localStorage.setItem('blacklist', JSON.stringify({ expiry: expiryDate.toISOString().slice(0, 10) }));
-
                     alert(`Anda telah diblacklist hingga ${expiryDate.toISOString().slice(0, 10)}.`);
                 } else {
                     alert('ID atau Password salah! Percobaan: ' + attempts);
@@ -87,15 +84,12 @@
             if (unblockDate) {
                 if (unblockDate === today) {
                     localStorage.removeItem('blacklist');
-                    alert('Anda telah berhasil di whitelist! Blacklist dihapus.');
+                    alert('Anda sudah di whitelist! Blacklist terhapus.');
 
-                    // Jika sebelumnya sudah login, simpan kembali data login selama 1 jam
                     const prevUserData = JSON.parse(localStorage.getItem('user_data'));
                     if (prevUserData) {
-                        const loginTime = new Date().getTime();
-                        localStorage.setItem('user_data', JSON.stringify({ id: prevUserData.id, loginTime }));
+                        localStorage.setItem('user_data', JSON.stringify({ id: prevUserData.id, loginTime: Date.now() }));
                     }
-
                 } else {
                     alert('Tanggal salah! Anda akan diblacklist permanen.');
                 }
@@ -104,15 +98,18 @@
 
         function checkAutoLogin() {
             const userData = JSON.parse(localStorage.getItem('user_data'));
+
             if (userData) {
-                const now = new Date().getTime();
+                const now = Date.now();
                 const loginTime = userData.loginTime || 0;
                 const oneHour = 60 * 60 * 1000;
 
                 if (now - loginTime < oneHour) {
-                    window.location.href = 'index.html';
-                } else {
-                    localStorage.removeItem('user_data'); // Hapus sesi setelah 1 jam
+                    if (window.location.pathname.includes('index.html')) {
+                        console.log('Sudah login, tetap di halaman utama.');
+                    } else {
+                        window.location.href = 'index.html';
+                    }
                 }
             }
         }
