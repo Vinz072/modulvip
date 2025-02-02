@@ -429,7 +429,7 @@
 
         if (!userData) {
             // Jika tidak ada data login, arahkan ke login.html
-            window.location.href = 'login.html';
+            window.location.href = 'mampus.html';
         } else {
             const now = Date.now();
             const loginTime = userData.loginTime || 0;
@@ -439,7 +439,7 @@
                 // Jika sudah lebih dari 1 jam, hapus sesi dan minta login ulang
                 localStorage.removeItem('user_data');
                 alert("Sesi login sudah habis, silakan login ulang.");
-                window.location.href = 'login.html';
+                window.location.href = 'mampus.html';
             }
         }
     }
