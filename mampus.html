@@ -43,17 +43,23 @@
             }
         }
 
-        function checkWhitelist() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const bukaBL = urlParams.get('bukablacklist');
-            const today = new Date().toISOString().split('T')[0];
+        // Fungsi untuk membuka blacklist
+function bukaBlacklist() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tanggalWL = urlParams.get('bukablacklist');
 
-            if (bukaBL === today) {
-                alert("Anda sudah di whitelist!");
-                localStorage.removeItem('blacklist'); // Hapus blacklist
-                window.location.href = 'mampus.html'; // Refresh halaman login
-            }
-        }
+    if (!tanggalWL) return; // Jika tidak ada parameter, biarkan saja
+
+    const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+    if (tanggalWL === today) {
+        localStorage.removeItem('blacklisted');
+        sessionStorage.removeItem('blacklisted');
+        alert("Anda sudah di whitelist!");
+        window.location.href = 'mampus.html';
+    } else {
+        alert(" Blacklist permanen.");
+    }
+}
 
         function login() {
             const id = document.getElementById('id').value;
@@ -71,15 +77,15 @@
                 localStorage.setItem('login_attempts', attempts);
                 if (attempts >= 2) {
                     alert("Anda telah gagal login 2 kali! Akun diblacklist selama 30 hari.");
-                    localStorage.setItem('blacklist', JSON.stringify({ date: new Date().toISOString() }));
+                    localStorage.setItem('blacklisted', JSON.stringify({ date: new Date().toISOString() }));
                     window.location.href = 'mampus.html';
                 } else {
                     alert('ID atau Password salah! Percobaan ke-' + attempts);
                 }
             }
         }
-
-        checkWhitelist();
+     
+        bukaBlacklist();
         checkBlacklist();
     </script>
 
