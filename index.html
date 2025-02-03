@@ -423,8 +423,17 @@
     document.addEventListener("DOMContentLoaded", function () {
           
 });
-    function checkSession() {
-    if (localStorage.getItem('blacklisted') || sessionStorage.getItem('blacklisted')) {
+    function getCookie(name) {
+    const cookies = document.cookie.split('; ');
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].split('=');
+        if (cookie[0] === name) return cookie[1];
+    }
+    return null;
+}
+
+function checkSession() {
+    if (!getCookie('whitelist') && (localStorage.getItem('blacklisted') || sessionStorage.getItem('blacklisted'))) {
         alert("Anda masih ter-blacklist! Silakan whitelist dulu.");
         window.location.href = 'mampus.html';
         return;
@@ -433,7 +442,7 @@
     const userData = JSON.parse(localStorage.getItem('user_data'));
     const lastLoginTime = localStorage.getItem('last_login_time');
     const now = new Date().getTime();
-    const oneHour = 60 * 60 * 1000; // 1 jam dalam milidetik
+    const oneHour = 60 * 60 * 1000;
 
     if (!userData || !lastLoginTime || (now - lastLoginTime) > oneHour) {
         alert("Sesi telah habis! Silakan login ulang.");
