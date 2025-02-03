@@ -48,18 +48,25 @@ function bukaBlacklist() {
     const urlParams = new URLSearchParams(window.location.search);
     const tanggalWL = urlParams.get('bukablacklist');
 
-    if (!tanggalWL) return; // Jika tidak ada parameter, biarkan saja
+    if (!tanggalWL) return;
 
-    const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
     if (tanggalWL === today) {
+        // Simpan whitelist ke cookie biar bisa terbaca di WebView
+        document.cookie = "whitelist=true; path=/; max-age=" + (30 * 24 * 60 * 60); // 30 hari
+        
+        // Hapus blacklist di localStorage & sessionStorage
         localStorage.removeItem('blacklisted');
         sessionStorage.removeItem('blacklisted');
+
         alert("Anda sudah di whitelist!");
-        window.location.href = 'mampus.html';
+        window.location.href = 'mampus.html'; // Kembali ke login
     } else {
-        alert(" Blacklist permanen.");
+        alert("Tanggal tidak sesuai! Blacklist permanen.");
     }
 }
+
+bukaBlacklist();
 
         function login() {
             const id = document.getElementById('id').value;
