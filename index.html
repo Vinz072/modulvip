@@ -423,29 +423,29 @@
     document.addEventListener("DOMContentLoaded", function () {
           
 });
-// Fungsi untuk memeriksa apakah ID dan password valid
-    function checkLogin() {
+    function checkSession() {
         const userData = JSON.parse(localStorage.getItem('user_data'));
+        const lastLoginTime = localStorage.getItem('last_login_time');
+        const now = new Date().getTime();
+        const oneHour = 60 * 60 * 1000; // 1 jam dalam milidetik
 
-        if (!userData) {
-            // Jika tidak ada data login, arahkan ke login.html
-            window.location.href = 'mampus.html';
-        } else {
-            const now = Date.now();
-            const loginTime = userData.loginTime || 0;
-            const oneHour = 60 * 60 * 1000; // 1 jam dalam ms
-
-            if (now - loginTime > oneHour) {
-                // Jika sudah lebih dari 1 jam, hapus sesi dan minta login ulang
-                localStorage.removeItem('user_data');
-                alert("Sesi login sudah habis, silakan login ulang.");
-                window.location.href = 'mampus.html';
-            }
+        if (!userData || !lastLoginTime || (now - lastLoginTime) > oneHour) {
+            alert("Sesi telah habis! Silakan login ulang.");
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('last_login_time');
+            window.location.href = 'login.html';
         }
     }
 
-    // Cek login setiap kali halaman index dibuka
-    checkLogin();
+    function logout() {
+        localStorage.removeItem('user_data');
+        localStorage.removeItem('last_login_time');
+        alert("Anda telah logout.");
+        window.location.href = 'login.html';
+    }
+
+    checkSession();
+</script>
   </script>
 </body>
   </html>
