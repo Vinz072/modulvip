@@ -424,27 +424,26 @@
           
 });
     function checkSession() {
-        const userData = JSON.parse(localStorage.getItem('user_data'));
-        const lastLoginTime = localStorage.getItem('last_login_time');
-        const now = new Date().getTime();
-        const oneHour = 60 * 60 * 1000; // 1 jam dalam milidetik
-
-        if (!userData || !lastLoginTime || (now - lastLoginTime) > oneHour) {
-            alert("Sesi telah habis! Silakan login ulang.");
-            localStorage.removeItem('user_data');
-            localStorage.removeItem('last_login_time');
-            window.location.href = 'mampus.html';
-        }
+    if (localStorage.getItem('blacklisted') || sessionStorage.getItem('blacklisted')) {
+        alert("Anda masih ter-blacklist! Silakan whitelist dulu.");
+        window.location.href = 'mampus.html';
+        return;
     }
 
-    function logout() {
+    const userData = JSON.parse(localStorage.getItem('user_data'));
+    const lastLoginTime = localStorage.getItem('last_login_time');
+    const now = new Date().getTime();
+    const oneHour = 60 * 60 * 1000; // 1 jam dalam milidetik
+
+    if (!userData || !lastLoginTime || (now - lastLoginTime) > oneHour) {
+        alert("Sesi telah habis! Silakan login ulang.");
         localStorage.removeItem('user_data');
         localStorage.removeItem('last_login_time');
-        alert("Anda telah logout.");
-        window.location.href = 'mampus.html';
+        window.location.href = 'login.html';
     }
+}
 
-    checkSession();
+checkSession();
   </script>
 </body>
   </html>
