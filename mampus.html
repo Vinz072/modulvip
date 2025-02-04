@@ -1,100 +1,53 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #222; color: white; text-align: center; }
-        .login-container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ddd; background-color: #333; border-radius: 10px; }
-        .login-container input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        body { font-family: Arial, sans-serif; }
+        .login-container { max-width: 400px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; }
+        .login-container input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
         .login-container button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
         .login-container button:hover { background-color: #45a049; }
     </style>
 </head>
 <body>
-
     <div class="login-container">
-        <h1>Login</h1>
-        <h3>Untuk membeli ID, hubungi: <br> 087880306228 (Owner)</h3>
-        <input type="text" id="id" placeholder="Masukkan ID" required>
-        <input type="password" id="pw" placeholder="Masukkan Password" required>
+   <img src="assets/nm.png" width="125" height="50"></img>
+    <h1>Login</h1>
+    <h3>mau beli id?, chat no owner<br>087880306228(owner)</h3>
+        <input type="text" id="id" placeholder="Enter ID" required>
+        <input type="password" id="pw" placeholder="Enter Password" required>
         <button onclick="login()">Login</button>
     </div>
 
     <script>
+        // Daftar ID dan Password yang valid
         const validUsers = [
             { id: '0', pw: 'owner' },
             { id: '1', pw: 'adm' },
-            { id: '2', pw: 'mem' },
-            { id: '3', pw: 'akucantik' },
-            { id: '4', pw: 'nopal' },
-            { id: 'follow', pw: 'vzproject' },
-            { id: 'vzproject', pw: '72' },
-            { id: '7', pw: '1357' },
-            { id: 'ghani', pw: '1' }
+            { id: 'vip', pw: 'vza' },
+            { id: 'vza', pw: 'prem' }
         ];
-
-        function checkBlacklist() {
-            const blacklistData = JSON.parse(localStorage.getItem('blacklist'));
-            if (blacklistData) {
-                alert("Anda masih dalam blacklist!");
-                window.location.href = 'mampus.html'; // Redirect ke halaman blacklist
-            }
-        }
-
-        // Fungsi untuk membuka blacklist
-function bukaBlacklist() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tanggalWL = urlParams.get('bukablacklist');
-
-    if (!tanggalWL) return;
-
-    const today = new Date().toISOString().split('T')[0];
-    if (tanggalWL === today) {
-        // Simpan whitelist ke cookie biar bisa terbaca di WebView
-        document.cookie = "whitelist=true; path=/; max-age=" + (30 * 24 * 60 * 60); // 30 hari
-        
-        // Hapus blacklist di localStorage & sessionStorage
-        localStorage.removeItem('blacklisted');
-        sessionStorage.removeItem('blacklisted');
-
-        alert("Anda sudah di whitelist!");
-        window.location.href = 'mampus.html'; // Kembali ke login
-    } else {
-        alert("Tanggal tidak sesuai! Blacklist permanen.");
-    }
-}
-
-bukaBlacklist();
 
         function login() {
             const id = document.getElementById('id').value;
             const pw = document.getElementById('pw').value;
             const user = validUsers.find(user => user.id === id && user.pw === pw);
-            let attempts = parseInt(localStorage.getItem('login_attempts')) || 0;
 
             if (user) {
-                localStorage.setItem('user_data', JSON.stringify({ id: user.id, pw: user.pw }));
+                // Simpan data login dan waktu login di localStorage
+                const loginData = { id: user.id, pw: user.pw };
+                localStorage.setItem('user_data', JSON.stringify(loginData));
                 localStorage.setItem('last_login_time', new Date().getTime());
-                localStorage.removeItem('login_attempts'); // Reset login attempts setelah sukses
+
+                // Redirect ke halaman utama (index.html)
                 window.location.href = 'index.html';
             } else {
-                attempts++;
-                localStorage.setItem('login_attempts', attempts);
-                if (attempts >= 2) {
-                    alert("Anda telah gagal login 2 kali! Akun diblacklist selama 30 hari.");
-                    localStorage.setItem('blacklisted', JSON.stringify({ date: new Date().toISOString() }));
-                    window.location.href = 'mampus.html';
-                } else {
-                    alert('ID atau Password salah! Percobaan ke-' + attempts);
-                }
+                alert('Invalid ID or Password');
             }
         }
-     
-        bukaBlacklist();
-        checkBlacklist();
     </script>
-
 </body>
 </html>
