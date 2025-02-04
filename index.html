@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vz-Project</title>
+  <title>Vz-Project___ж</title>
   <style>
     @font-face {
       font-family: "CustomFont";
@@ -290,7 +290,7 @@
 <audio id="nada79" src="nada/nada79.mp3"></audio>
 <audio id="nada80" src="nada/nada80.mp3"></audio>
 <audio id="nada81" src="nada/nada81.mp3"></audio>
-<audio id="nada82" src="nada/nada82.mp3"></audio>
+<audio id="nad82" src="nada/nada82.mp3"></audio>
 
 
   <script>
@@ -423,36 +423,40 @@
     document.addEventListener("DOMContentLoaded", function () {
           
 });
-    function getCookie(name) {
-    const cookies = document.cookie.split('; ');
-    for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].split('=');
-        if (cookie[0] === name) return cookie[1];
-    }
-    return null;
-}
+// Fungsi untuk memeriksa apakah ID dan password valid
+function checkLogin() {
+    // Data login yang valid
+    
 
-function checkSession() {
-    if (!getCookie('whitelist') && (localStorage.getItem('blacklisted') || sessionStorage.getItem('blacklisted'))) {
-        alert("Anda masih ter-blacklist! Silakan whitelist dulu.");
-        window.location.href = 'mampus.html';
-        return;
-    }
+    // Mendapatkan ID dan password yang dimasukkan oleh pengguna
+    const enteredId = document.getElementById('userId').value;
+    const enteredPassword = document.getElementById('userPassword').value;
 
-    const userData = JSON.parse(localStorage.getItem('user_data'));
-    const lastLoginTime = localStorage.getItem('last_login_time');
-    const now = new Date().getTime();
-    const oneHour = 60 * 60 * 1000;
+    // Memeriksa apakah data login valid
+    const user = validUsers.find(u => u.id === enteredId && u.password === enteredPassword);
+    if (user) {
+        // Jika valid, simpan data login dan waktu login
+        localStorage.setItem('user_data', JSON.stringify({ id: enteredId }));
+        localStorage.setItem('last_login_time', new Date().getTime());
 
-    if (!userData || !lastLoginTime || (now - lastLoginTime) > oneHour) {
-        alert("Sesi telah habis! Silakan login ulang.");
-        localStorage.removeItem('user_data');
-        localStorage.removeItem('last_login_time');
-        window.location.href = 'mampus.html';
+        // Alihkan ke halaman utama
+        window.location.href = "index.html";
+    } else {
+        alert("ID atau password salah!");
     }
 }
 
-checkSession();
+// Mengecek apakah pengguna sudah login atau belum saat membuka halaman
+window.onload = function() {
+    const userData = JSON.parse(localStorage.getItem("user_data"));
+    const lastLoginTime = localStorage.getItem("last_login_time");
+    const currentTime = new Date().getTime();
+
+    // Jika tidak ada data login atau login lebih dari 1 jam, alihkan ke mampus.html
+    if (!userData || !lastLoginTime || currentTime - lastLoginTime > 3600000) {
+        window.location.href = "mampus.html";
+    }
+};
   </script>
 </body>
-  </html>
+</html>
