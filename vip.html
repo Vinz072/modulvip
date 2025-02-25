@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vz-Project___Ð¶</title>
+  <style>
+    /* --- Font & Reset --- */
+    @font-face {
+      font-family: "CustomFont";
+      src: url("https://vzatechvip42.pages.dev/assets/f.ttf") format("truetype");
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: "CustomFont", Arial, sans-serif;
+      background-color: #c7c7c7;
+      position: relative;
+    }
+    /* --- Pesan rotasi layar (untuk portrait) --- */
+    #rotateMessage {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      font-size: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 2000;
+    }
+    /* --- Container utama untuk layout horizontal --- */
+    #container {
+      display: none; /* akan muncul jika landscape */
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    /* --- Display box di atas tengah --- */
+    #display-box {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: red;
+      padding: 15px;
+      width: 175px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #display {
+      font-size: 2em;
+    }
+    /* --- Tombol Nada (up/down) di sebelah kanan display-box --- */
+    #nadaControls {
+      position: absolute;
+      right: 5%;
+      top: 15%;
+      transform: translateY(-50%);
+      display: flex;
+      
+    }
+    /* --- Tombol Speed (up/down) di sebelah kiri display-box --- */
+    #speedControls {
+      position: absolute;
+      left: 5%;
+      top: 15%;
+      transform: translateY(-50%);
+      display: flex;
+    
+    }
+    #play, #stop, #decrease, #increase, #slowDown, #speedUp {
+      width: 60px;
+      height: 60px
+    }
+    /* --- Tombol Play (pojok kanan bawah) --- */
+    #play {
+      position: absolute;
+      bottom: 5%;
+      right: 5%;
+      background-color: #2ecc71; /* Hijau */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #play:hover {
+      transform: scale(1.1);
+    }
+    /* --- Tombol Stop (pojok kiri bawah) --- */
+    #stop {
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+      background-color: #e74c3c; /* Merah */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    #stop:hover {
+      transform: scale(1.1);
+    }
+    /* --- Tombol standar (untuk speed & nada) --- */
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.1);
+    }
+    /* --- Tombol decrease/increase (Nada) --- */
+    #decrease, #increase {
+      background-color: #3498db; /* Biru */
+      color: white;
+    }
+    /* --- Tombol slowDown/speedUp (Speed) --- */
+    #slowDown, #speedUp {
+      background-color: #e67e22; /* Oranye */
+      color: white;
+    }
+    /* --- Gambar nm.png di tengah --- */
+    #centerImage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      /* Ukuran bisa disesuaikan */
+      width: 150px;
+      height: auto;
+    }
+    /* --- Elemen background changer & file input (tetap sama) --- */
+    #changeBackgroundBtn {
+      position: absolute;
+      top: 10px;
+      right: 235px;
+      padding: 1px 1px;
+      background-color: #2eabff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+    }
+    #changeBackgroundBtn:hover {
+      transform: scale(1.1);
+    }
+    #fileInput {
+      display: none;
+    }
+    #speedDisplay {
+      margin-top: 10px;
+      position: absolute;
+      top: 5%;
+      right: 5%;
+      color: white;
+      font-size: 1.2em;
+    }
+    /* --- Untuk elemen .button-group yang lama (tidak digunakan lagi dalam layout baru) --- */
+    .button-group { display: none; }
+    
+    /* --- Media queries tambahan (untuk elemen .note) tetap disertakan --- */
+    @media (max-width: 768px) {
+      .note {
+        width: 50px;
+        height: 120px;
+        line-height: 120px;
+        font-size: 16px;
+      }
+    }
+    @media (max-width: 480px) {
+      .note {
+        width: 40px;
+        height: 100px;
+        line-height: 100px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Pesan orientasi: tampil jika layar vertikal -->
+  <div id="rotateMessage">Silakan miringkan hp AndaðŸ“±
+  </div>
+
+  <!-- Container utama untuk tampilan horizontal -->
+  <div id="container">
+    <!-- Display Box di atas tengah -->
+    <div id="display-box">
+      <div id="display">Ready</div>
+    </div>
+    
+    <!-- Tombol Speed (up & down) di sebelah kiri display-box -->
+    <div id="speedControls">
+      <button id="slowDown">â‡‡</button>
+      <button id="speedUp">â‡‰</button>
+    </div>
+    
+    <!-- Tombol Nada (decrease & increase) di sebelah kanan display-box -->
+    <div id="nadaControls">
+      <button id="decrease">-</button>
+      <button id="increase">+</button>
+    </div>
+    
+    <!-- Gambar nm.png di tengah layar -->
+    <img id="centerImage" src="https://vzatechvip42.pages.dev/assets/nm.png">
+    
+    <!-- Tombol Stop di kiri bawah dan Play di kanan bawah -->
+    <button id="stop">Stop</button>
+    <button id="play">Play</button>
+  </div>
+
+  <!-- Elemen tambahan asli: tombol background, file input, speedDisplay -->
+  <button id="changeBackgroundBtn">bg</button>
+  <input type="file" id="fileInput" accept="image/png, image/jpeg" onchange="changeBackground(event)">
+
+
+  
+
+  <!-- Audio Elements (tidak diubah) -->
+<audio id="nada1" src="https://vzatechvip42.pages.dev/nada/nada1.mp3"></audio>
+<audio id="nada2" src="https://vzatechvip42.pages.dev/nada/nada2.mp3"></audio>
+<audio id="nada3" src="https://vzatechvip42.pages.dev/nada/nada3.mp3"></audio>
+<audio id="nada4" src="https://vzatechvip42.pages.dev/nada/nada4.mp3"></audio>
+<audio id="nada5" src="https://vzatechvip42.pages.dev/nada/nada5.mp3"></audio>
+<audio id="nada6" src="https://vzatechvip42.pages.dev/nada/nada6.mp3"></audio>
+<audio id="nada7" src="https://vzatechvip42.pages.dev/nada/nada7.mp3"></audio>
+<audio id="nada8" src="https://vzatechvip42.pages.dev/nada/nada8.mp3"></audio>
+<audio id="nada9" src="https://vzatechvip42.pages.dev/nada/nada9.mp3"></audio>
+<audio id="nada10" src="https://vzatechvip42.pages.dev/nada/nada10.mp3"></audio>
+<audio id="nada11" src="https://vzatechvip42.pages.dev/nada/nada11.mp3"></audio>
+<audio id="nada12" src="https://vzatechvip42.pages.dev/nada/nada12.mp3"></audio>
+<audio id="nada13" src="https://vzatechvip42.pages.dev/nada/nada13.mp3"></audio>
+<audio id="nada14" src="https://vzatechvip42.pages.dev/nada/nada14.mp3"></audio>
+<audio id="nada15" src="https://vzatechvip42.pages.dev/nada/nada15.mp3"></audio>
+<audio id="nada16" src="https://vzatechvip42.pages.dev/nada/nada16.mp3"></audio>
+<audio id="nada17" src="https://vzatechvip42.pages.dev/nada/nada17.mp3"></audio>
+<audio id="nada18" src="https://vzatechvip42.pages.dev/nada/nada18.mp3"></audio>
+<audio id="nada19" src="https://vzatechvip42.pages.dev/nada/nada19.mp3"></audio>
+<audio id="nada20" src="https://vzatechvip42.pages.dev/nada/nada20.mp3"></audio>
+<audio id="nada21" src="https://vzatechvip42.pages.dev/nada/nada21.mp3"></audio>
+<audio id="nada22" src="https://vzatechvip42.pages.dev/nada/nada22.mp3"></audio>
+<audio id="nada23" src="https://vzatechvip42.pages.dev/nada/nada23.mp3"></audio>
+<audio id="nada24" src="https://vzatechvip42.pages.dev/nada/nada24.mp3"></audio>
+<audio id="nada25" src="https://vzatechvip42.pages.dev/nada/nada25.mp3"></audio>
+<audio id="nada26" src="https://vzatechvip42.pages.dev/nada/nada26.mp3"></audio>
+<audio id="nada27" src="https://vzatechvip42.pages.dev/nada/nada27.mp3"></audio>
+<audio id="nada28" src="https://vzatechvip42.pages.dev/nada/nada28.mp3"></audio>
+<audio id="nada29" src="https://vzatechvip42.pages.dev/nada/nada29.mp3"></audio>
+<audio id="nada30" src="https://vzatechvip42.pages.dev/nada/nada30.mp3"></audio>
+<audio id="nada31" src="https://vzatechvip42.pages.dev/nada/nada31.mp3"></audio>
+<audio id="nada32" src="https://vzatechvip42.pages.dev/nada/nada32.mp3"></audio>
+<audio id="nada33" src="https://vzatechvip42.pages.dev/nada/nada33.mp3"></audio>
+<audio id="nada34" src="https://vzatechvip42.pages.dev/nada/nada34.mp3"></audio>
+<audio id="nada35" src="https://vzatechvip42.pages.dev/nada/nada35.mp3"></audio>
+<audio id="nada36" src="https://vzatechvip42.pages.dev/nada/nada36.mp3"></audio>
+<audio id="nada37" src="https://vzatechvip42.pages.dev/nada/nada37.mp3"></audio>
+<audio id="nada38" src="https://vzatechvip42.pages.dev/nada/nada38.mp3"></audio>
+<audio id="nada39" src="https://vzatechvip42.pages.dev/nada/nada39.mp3"></audio>
+<audio id="nada40" src="https://vzatechvip42.pages.dev/nada/nada40.mp3"></audio>
+<audio id="nada41" src="https://vzatechvip42.pages.dev/nada/nada41.mp3"></audio>
+<audio id="nada42" src="https://vzatechvip42.pages.dev/nada/nada42.mp3"></audio>
+<audio id="nada43" src="https://vzatechvip42.pages.dev/nada/nada43.mp3"></audio>
+<audio id="nada44" src="https://vzatechvip42.pages.dev/nada/nada44.mp3"></audio>
+<audio id="nada45" src="https://vzatechvip42.pages.dev/nada/nada45.mp3"></audio>
+<audio id="nada46" src="https://vzatechvip42.pages.dev/nada/nada46.mp3"></audio>
+<audio id="nada47" src="https://vzatechvip42.pages.dev/nada/nada47.mp3"></audio>
+<audio id="nada48" src="https://vzatechvip42.pages.dev/nada/nada48.mp3"></audio>
+<audio id="nada49" src="https://vzatechvip42.pages.dev/nada/nada49.mp3"></audio>
+<audio id="nada50" src="https://vzatechvip42.pages.dev/nada/nada50.mp3"></audio>
+<audio id="nada51" src="https://vzatechvip42.pages.dev/nada/nada51.mp3"></audio>
+<audio id="nada52" src="https://vzatechvip42.pages.dev/nada/nada52.mp3"></audio>
+<audio id="nada53" src="https://vzatechvip42.pages.dev/nada/nada53.mp3"></audio>
+<audio id="nada54" src="https://vzatechvip42.pages.dev/nada/nada54.mp3"></audio>
+<audio id="nada55" src="https://vzatechvip42.pages.dev/nada/nada55.mp3"></audio>
+<audio id="nada56" src="https://vzatechvip42.pages.dev/nada/nada56.mp3"></audio>
+<audio id="nada57" src="https://vzatechvip42.pages.dev/nada/nada57.mp3"></audio>
+<audio id="nada58" src="https://vzatechvip42.pages.dev/nada/nada58.mp3"></audio>
+<audio id="nada59" src="https://vzatechvip42.pages.dev/nada/nada59.mp3"></audio>
+<audio id="nada60" src="https://vzatechvip42.pages.dev/nada/nada60.mp3"></audio>
+<audio id="nada61" src="https://vzatechvip42.pages.dev/nada/nada61.mp3"></audio>
+<audio id="nada62" src="https://vzatechvip42.pages.dev/nada/nada62.mp3"></audio>
+<audio id="nada63" src="https://vzatechvip42.pages.dev/nada/nada63.mp3"></audio>
+<audio id="nada64" src="https://vzatechvip42.pages.dev/nada/nada64.mp3"></audio>
+<audio id="nada65" src="https://vzatechvip42.pages.dev/nada/nada65.mp3"></audio>
+<audio id="nada66" src="https://vzatechvip42.pages.dev/nada/nada66.mp3"></audio>
+<audio id="nada67" src="https://vzatechvip42.pages.dev/nada/nada67.mp3"></audio>
+<audio id="nada68" src="https://vzatechvip42.pages.dev/nada/nada68.mp3"></audio>
+<audio id="nada69" src="https://vzatechvip42.pages.dev/nada/nada69.mp3"></audio>
+<audio id="nada70" src="https://vzatechvip42.pages.dev/nada/nada70.mp3"></audio>
+<audio id="nada71" src="https://vzatechvip42.pages.dev/nada/nada71.mp3"></audio>
+<audio id="nada72" src="https://vzatechvip42.pages.dev/nada/nada72.mp3"></audio>
+<audio id="nada73" src="https://vzatechvip42.pages.dev/nada/nada73.mp3"></audio>
+<audio id="nada74" src="https://vzatechvip42.pages.dev/nada/nada74.mp3"></audio>
+<audio id="nada75" src="https://vzatechvip42.pages.dev/nada/nada75.mp3"></audio>
+<audio id="nada76" src="https://vzatechvip42.pages.dev/nada/nada76.mp3"></audio>
+<audio id="nada77" src="https://vzatechvip42.pages.dev/nada/nada77.mp3"></audio>
+<audio id="nada78" src="https://vzatechvip42.pages.dev/nada/nada78.mp3"></audio>
+<audio id="nada79" src="https://vzatechvip42.pages.dev/nada/nada79.mp3"></audio>
+<audio id="nada80" src="https://vzatechvip42.pages.dev/nada/nada80.mp3"></audio>
+<audio id="nada81" src="https://vzatechvip42.pages.dev/nada/nada81.mp3"></audio>
+<audio id="nada82" src="https://vzatechvip42.pages.dev/nada/nada82.mp3"></audio>
+<audio id="nada83" src="https://vzatechvip42.pages.dev/nada/nada83.mp3"></audio>
+<audio id="nada84" src="https://vzatechvip42.pages.dev/nada/nada84.mp3"></audio>
+<audio id="nada85" src="https://vzatechvip42.pages.dev/nada/nada85.mp3"></audio>
+<audio id="nada86" src="https://vzatechvip42.pages.dev/nada/nada86.mp3"></audio>
+<audio id="nada87" src="https://vzatechvip42.pages.dev/nada/nada87.mp3"></audio>
+<audio id="nada88" src="https://vzatechvip42.pages.dev/nada/nada88.mp3"></audio>
+<audio id="nada89" src="https://vzatechvip42.pages.dev/nada/nada89.mp3"></audio>
+<audio id="nada90" src="https://vzatechvip42.pages.dev/nada/nada90.mp3"></audio>
+<audio id="nada91" src="https://vzatechvip42.pages.dev/nada/nada91.mp3"></audio>
+<audio id="nada92" src="https://vzatechvip42.pages.dev/nada/nada92.mp3"></audio>
+<audio id="nada93" src="https://vzatechvip42.pages.dev/nada/nada93.mp3"></audio>
+<audio id="nada94" src="https://vzatechvip42.pages.dev/nada/nada94.mp3"></audio>
+<audio id="nada95" src="https://vzatechvip42.pages.dev/nada/nada95.mp3"></audio>
+<audio id="nada96" src="https://vzatechvip42.pages.dev/nada/nada96.mp3"></audio>
+<audio id="nada97" src="https://vzatechvip42.pages.dev/nada/nada97.mp3"></audio>
+<audio id="nada98" src="https://vzatechvip42.pages.dev/nada/nada98.mp3"></audio>
+<audio id="nada99" src="https://vzatechvip42.pages.dev/nada/nada99.mp3"></audio>
+<audio id="nada100" src="https://vzatechvip42.pages.dev/nada/nada100.mp3"></audio>
+<audio id="nada101" src="https://vzatechvip42.pages.dev/nada/nada101.mp3"></audio>
+<audio id="nada102" src="https://vzatechvip42.pages.dev/nada/nada102.mp3"></audio>
+<audio id="nada103" src="https://vzatechvip42.pages.dev/nada/nada103.mp3"></audio>
+<audio id="nada104" src="https://vzatechvip42.pages.dev/nada/nada104.mp3"></audio>
+<audio id="nada105" src="https://vzatechvip42.pages.dev/nada/nada105.mp3"></audio>
+<audio id="nada106" src="https://vzatechvip42.pages.dev/nada/nada106.mp3"></audio>
+<audio id="nada107" src="https://vzatechvip42.pages.dev/nada/nada107.mp3"></audio>
+<audio id="nada108" src="https://vzatechvip42.pages.dev/nada/nada108.mp3"></audio>
+<audio id="nada109" src="https://vzatechvip42.pages.dev/nada/nada109.mp3"></audio>
+<audio id="nada110" src="https://vzatechvip42.pages.dev/nada/nada110.mp3"></audio>
+<audio id="nada111" src="https://vzatechvip42.pages.dev/nada/nada111.mp3"></audio>
+<audio id="nada112" src="https://vzatechvip42.pages.dev/nada/nada112.mp3"></audio>
+<audio id="nada113" src="https://vzatechvip42.pages.dev/nada/nada113.mp3"></audio>
+<audio id="nada114" src="https://vzatechvip42.pages.dev/nada/nada114.mp3"></audio>
+<audio id="nada115" src="https://vzatechvip42.pages.dev/nada/nada115.mp3"></audio>
+<audio id="nada116" src="https://vzatechvip42.pages.dev/nada/nada116.mp3"></audio>
+<audio id="nada117" src="https://vzatechvip42.pages.dev/nada/nada117.mp3"></audio>
+<audio id="nada118" src="https://vzatechvip42.pages.dev/nada/nada118.mp3"></audio>
+<audio id="nada119" src="https://vzatechvip42.pages.dev/nada/nada119.mp3"></audio>
+<audio id="nada120" src="https://vzatechvip42.pages.dev/nada/nada120.mp3"></audio>
+<audio id="nada121" src="https://vzatechvip42.pages.dev/nada/nada121.mp3"></audio>
+<audio id="nada122" src="https://vzatechvip42.pages.dev/nada/nada122.mp3"></audio>
+<audio id="nada123" src="https://vzatechvip42.pages.dev/nada/nada123.mp3"></audio>
+<audio id="nada124" src="https://vzatechvip42.pages.dev/nada/nada124.mp3"></audio>
+<audio id="nada125" src="https://vzatechvip42.pages.dev/nada/nada125.mp3"></audio>
+<audio id="nada126" src="https://vzatechvip42.pages.dev/nada/nada126.mp3"></audio>
+<audio id="nada127" src="https://vzatechvip42.pages.dev/nada/nada127.mp3"></audio>
+<audio id="nada128" src="https://vzatechvip42.pages.dev/nada/nada128.mp3"></audio>
+<audio id="nada129" src="https://vzatechvip42.pages.dev/nada/nada129.mp3"></audio>
+<audio id="nada130" src="https://vzatechvip42.pages.dev/nada/nada130.mp3"></audio>
+<audio id="nada131" src="https://vzatechvip42.pages.dev/nada/nada131.mp3"></audio>
+<audio id="nada132" src="https://vzatechvip42.pages.dev/nada/nada132.mp3"></audio>
+<audio id="nada133" src="https://vzatechvip42.pages.dev/nada/nada133.mp3"></audio>
+<audio id="nada134" src="https://vzatechvip42.pages.dev/nada/nada134.mp3"></audio>
+<audio id="nada135" src="https://vzatechvip42.pages.dev/nada/nada135.mp3"></audio>
+<audio id="nada136" src="https://vzatechvip42.pages.dev/nada/nada136.mp3"></audio>
+<audio id="nada137" src="https://vzatechvip42.pages.dev/nada/nada137.mp3"></audio>
+<audio id="nada138" src="https://vzatechvip42.pages.dev/nada/nada138.mp3"></audio>
+<audio id="nada139" src="https://vzatechvip42.pages.dev/nada/nada139.mp3"></audio>
+<audio id="nada140" src="https://vzatechvip42.pages.dev/nada/nada140.mp3"></audio>
+<audio id="nada141" src="https://vzatechvip42.pages.dev/nada/nada141.mp3"></audio>
+<audio id="nada142" src="https://vzatechvip42.pages.dev/nada/nada142.mp3"></audio>
+<audio id="nada143" src="https://vzatechvip42.pages.dev/nada/nada143.mp3"></audio>
+<audio id="nada144" src="https://vzatechvip42.pages.dev/nada/nada144.mp3"></audio>
+<audio id="nada145" src="https://vzatechvip42.pages.dev/nada/nada145.mp3"></audio>
+<audio id="nada146" src="https://vzatechvip42.pages.dev/nada/nada146.mp3"></audio>
+<audio id="nada147" src="https://vzatechvip42.pages.dev/nada/nada147.mp3"></audio>
+<audio id="nada148" src="https://vzatechvip42.pages.dev/nada/nada148.mp3"></audio>
+<audio id="nada149" src="https://vzatechvip42.pages.dev/nada/nada149.mp3"></audio>
+<audio id="nada150" src="https://vzatechvip42.pages.dev/nada/nada150.mp3"></audio>
+
+  <!-- Script JavaScript untuk audio & orientasi -->
+  <script>
+    let currentNada = 1;
+let currentSpeed = 1.0;
+let isPlaying = false;
+let currentAudio = null;
+let resetDisplayTimer = null;
+
+const display = document.getElementById("display");
+const playBtn = document.getElementById("play");
+const stopBtn = document.getElementById("stop");
+
+// Fungsi untuk memperbarui tampilan display
+function updateDisplay(mode, extra = null) {
+    clearTimeout(resetDisplayTimer);
+    
+    if (mode === "welcome") {
+        display.textContent = "Welcome";
+        display.style.opacity = 1;
+        resetDisplayTimer = setTimeout(() => {
+            updateDisplay("nada", currentNada); // Kembali ke tampilan nada setelah 10 detik
+        }, 10000);
+    } else if (mode === "play") {
+        display.textContent = "play";
+        display.style.opacity = 1;
+    } else if (mode === "done") {
+        display.textContent = "done";
+        resetDisplayToNada();
+    } else if (mode === "stopped") {
+        display.textContent = "stopped";
+        resetDisplayToNada();
+    } else if (mode === "nada") {
+        display.textContent = `no:${extra}`;
+        resetDisplayToPlay();
+    } else if (mode === "speed") {
+        display.textContent = `sp:${currentSpeed.toFixed(2)}`;
+        resetDisplayToPlay();
+    }
+}
+
+function resetDisplayToNada() {
+    resetDisplayTimer = setTimeout(() => {
+        updateDisplay("nada", currentNada);
+    }, 1000);
+}
+
+function resetDisplayToPlay() {
+    resetDisplayTimer = setTimeout(() => {
+        if (isPlaying) updateDisplay("play");
+    }, 1000);
+}
+
+// Menampilkan pesan sambutan saat aplikasi dimulai
+updateDisplay("welcome");
+
+// Tombol Play
+playBtn.addEventListener("click", () => {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+    }
+    currentAudio = document.getElementById(`nada${currentNada}`);
+    currentAudio.playbackRate = currentSpeed;
+    currentAudio.play();
+    isPlaying = true;
+    updateDisplay("play");
+    currentAudio.onended = () => {
+        isPlaying = false;
+        updateDisplay("done");
+    };
+});
+
+// Tombol Stop (berfungsi pause dan reset)
+stopBtn.addEventListener("click", () => {
+    if (currentAudio && isPlaying) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        isPlaying = false;
+        updateDisplay("stopped");
+    }
+});
+
+// Tombol untuk mengatur Nada
+document.getElementById("decrease").addEventListener("click", () => {
+    currentNada = currentNada === 1 ? 102 : currentNada - 1;
+    updateDisplay("nada", currentNada);
+});
+
+document.getElementById("increase").addEventListener("click", () => {
+    currentNada = currentNada === 102 ? 1 : currentNada + 1;
+    updateDisplay("nada", currentNada);
+});
+
+// Tombol untuk mengatur Speed
+document.getElementById("speedUp").addEventListener("click", () => {
+    currentSpeed = Math.min(currentSpeed + 0.10, 2.0);
+    if (currentAudio) currentAudio.playbackRate = currentSpeed;
+    updateDisplay("speed");
+});
+
+document.getElementById("slowDown").addEventListener("click", () => {
+    currentSpeed = Math.max(currentSpeed - 0.10, 0.10);
+    if (currentAudio) currentAudio.playbackRate = currentSpeed;
+    updateDisplay("speed");
+});
+
+// Fungsi untuk mengubah background
+function changeBackground(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.body.style.backgroundImage = `url(${e.target.result})`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundPosition = "center";
+        };
+        reader.readAsDataURL(file);
+    }
+}
+document.getElementById("changeBackgroundBtn").addEventListener("click", () => {
+    document.getElementById("fileInput").click();
+});
+
+// Fungsi untuk cek orientasi layar
+function checkOrientation() {
+    if (window.innerWidth < window.innerHeight) {
+        document.getElementById("rotateMessage").style.display = "flex";
+        document.getElementById("container").style.display = "none";
+    } else {
+        document.getElementById("rotateMessage").style.display = "none";
+        document.getElementById("container").style.display = "block";
+    }
+}
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("load", checkOrientation);
+  </script>
+</body>
+  </html>
